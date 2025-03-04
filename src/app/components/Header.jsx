@@ -6,6 +6,8 @@ import { Button, Navbar, TextInput } from 'flowbite-react';
 import Link from 'next/link';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { FaMoon, FaSun } from 'react-icons/fa';
+import { SignedIn, SignedOut, SignInButton, SignINButton, UserButton } from '@clerk/nextjs';
+import { dark, light } from '@clerk/themes';
 
 export default function Header() {
   const path = usePathname();
@@ -50,11 +52,21 @@ export default function Header() {
         >
           {theme === 'dark' ? <FaSun /> : <FaMoon />}
         </Button>
-        <Link href="/sign-in">
-          <Button gradientDuoTone="purpleToBlue" outline>
-            Sign In
-          </Button>
-        </Link>
+        <SignedIn>
+          <UserButton 
+          appearance={{
+            baseTheme:theme === 'dark' ? dark : light,
+          }}
+          />
+        </SignedIn>
+        <SignedOut>
+          <Link href="/sign-in">
+            <Button gradientDuoTone="purpleToBlue" outline>
+              Sign In
+            </Button>
+          </Link>
+        </SignedOut>
+      
         <Navbar.Toggle />
       </div>
       <Navbar.Collapse>
