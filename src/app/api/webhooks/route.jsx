@@ -47,21 +47,58 @@ export async function POST(req) {
 
   // Do something with payload
   // For this guide, log payload to console
-  const { id } = evt.data
-  const eventType = evt.type
-  console.log(`Received webhook with ID ${id} and event type of ${eventType}`)
-  console.log('Webhook payload:', body)
-  if (evt.type === 'user.created') {
-    console.log('userId:', evt.data.id)
-  }
+  const { id } = evt?.data;
+const eventType = evt?.type;
+console.log(`Received webhook with ID ${id} and event type of ${eventType}`);
+console.log('Webhook payload:', body);
 
-  if (evt.type === 'user.updated') {
-    console.log('user is updated:', evt.data.id)
-  }
+if (eventType === 'user.created' || eventType === 'user.updated') {
+    const {
+        id,
+        email,
+        first_name,
+        last_name,
+        image_url,
+        email_addresses,
+        username,
+    } = evt?.data;
 
-  if (evt.type === 'user.deleted') {
-    console.log('user is deleted:', evt.data.id)
-  }
+    try {
+        const user = await createOrUpdateUser(
+            id,
+            email,
+            first_name,
+            last_name,
+            image_url,
+            email_addresses,
+            username
+        );
+        if (user && eventType === 'user.created') {
+            try {
+                await clerkClient.users.updateUserMetadata(id, {
+                    publicMetadata: {
+                        userMongoId: user._id,
+                        isAdmin: user.isAdmin,
+                    }
+                });
+            } catch (error) {
+                console.log('Error updating user metadata:', error);
+            }
+        }
+    } catch (error) {
+        console.log('Error creating or updating user:', error);
+        return new Response('Error creating or updating user', { status: 400 });
+    }
+}
 
-  return new Response('Webhook received', { status: 200 })
+if (eventType === 'user.deleted') {
+    try {
+        await deleteUser(id);
+    } catch (error) {
+        console.log('Error deleting user:', error);
+        return new Response('Error deleting user', { status: 400 });
+    }
+}
+
+return new Response('Webhook received', { status: 200 });
 }
