@@ -1,28 +1,45 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { Button, Navbar, TextInput } from 'flowbite-react';
 import Link from 'next/link';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { FaMoon, FaSun } from 'react-icons/fa';
-import { SignedIn, SignedOut, SignInButton, SignINButton, UserButton } from '@clerk/nextjs';
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import { dark, light } from '@clerk/themes';
 
 export default function Header() {
   const path = usePathname();
   const { theme, setTheme } = useTheme();
-  
-  // Track whether the component is mounted
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Ensure hooks are called unconditionally
   const [isMounted, setIsMounted] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    setIsMounted(true); // Once mounted on the client-side, set the flag to true
+    setIsMounted(true);
   }, []);
 
-  if (!isMounted) {
-    return null; // Prevent SSR mismatch by returning nothing until after hydration
-  }
+  useEffect(() => {
+    const urlParams = new URLSearchParams(searchParams);
+    const searchTermFromUrl = urlParams.get('searchTerm');
+    if (searchTermFromUrl) {
+      setSearchTerm(searchTermFromUrl);
+    }
+  }, [searchParams]);
+
+  if (!isMounted) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const urlParams = new URLSearchParams(searchParams);
+    urlParams.set('searchTerm', searchTerm);
+    const searchQuery = urlParams.toString();
+    router.push(`/search?${searchQuery}`);
+  };
 
   return (
     <Navbar className="border-b-2">
@@ -32,12 +49,14 @@ export default function Header() {
         </span>
         Blog
       </Link>
-      <form>
+      <form onSubmit={handleSubmit}>
         <TextInput
           type="text"
           placeholder="Search..."
           rightIcon={AiOutlineSearch}
           className="hidden lg:inline"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </form>
       <Button className="w-12 h-10 lg:hidden" color="gray" pill>
@@ -53,10 +72,11 @@ export default function Header() {
           {theme === 'dark' ? <FaSun /> : <FaMoon />}
         </Button>
         <SignedIn>
-          <UserButton 
-          appearance={{
-            baseTheme:theme === 'dark' ? dark : light,
-          }}
+          <UserButton
+            appearance={{
+              baseTheme: theme === 'dark' ? dark : light,
+            }}
+            userProfileUrl='/dashboard?tab=profile'
           />
         </SignedIn>
         <SignedOut>
@@ -66,7 +86,7 @@ export default function Header() {
             </Button>
           </Link>
         </SignedOut>
-      
+
         <Navbar.Toggle />
       </div>
       <Navbar.Collapse>
