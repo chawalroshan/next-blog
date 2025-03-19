@@ -4,20 +4,20 @@ export default function About() {
         <div className='max-w-2xl mx-auto p-3 text-center'>
           <div>
             <h1 className='text-3xl font font-semibold text-center my-7'>
-              About Sahand&apos;s Blog
+              About TechByte&apos;s Blog
             </h1>
             <div className='text-md text-gray-500 flex flex-col gap-6'>
               <p>
-                Welcome to Sahand&apos;s Blog! Created by Sahand Ghavidel, this blog
+                Welcome to TechByte&apos;s Blog! Created by TechByte Ghavidel, this blog
                 serves as a personal platform to share his insights and ideas with
-                the world. Sahand is an enthusiastic developer who enjoys writing
+                the world. TechByte is an enthusiastic developer who enjoys writing
                 about technology, coding, and a variety of related topics.
               </p>
   
               <p>
                 On this blog, you&apos;ll discover weekly articles and tutorials
                 covering a range of topics including web development, software
-                engineering, and programming languages. Sahand is continually
+                engineering, and programming languages. TechByte is continually
                 learning and exploring new technologies, so make sure to visit
                 frequently for the latest updates!
               </p>
